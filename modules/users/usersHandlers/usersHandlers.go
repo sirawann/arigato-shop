@@ -183,7 +183,6 @@ func (h *usersHandler) SignIn(c *fiber.Ctx) error {
 			err.Error(),
 		).Res()
 	}
-
 	return entities.NewResponse(c).Success(fiber.StatusOK, passport).Res()
 }
 
@@ -205,7 +204,6 @@ func (h *usersHandler) RefreshPassport(c *fiber.Ctx) error {
 			err.Error(),
 		).Res()
 	}
-
 	return entities.NewResponse(c).Success(fiber.StatusOK, passport).Res()
 }
 
@@ -226,7 +224,6 @@ func (h *usersHandler) SignOut(c *fiber.Ctx) error {
 			err.Error(),
 		).Res()
 	}
-
 	return entities.NewResponse(c).Success(fiber.StatusOK, nil).Res()
 }
 
@@ -252,6 +249,5 @@ func (h *usersHandler) GetUserProfile(c *fiber.Ctx) error {
 			).Res()
 		}
 	}
-
 	return entities.NewResponse(c).Success(fiber.StatusOK, result).Res()
 }
