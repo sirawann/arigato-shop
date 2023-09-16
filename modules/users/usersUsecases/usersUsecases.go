@@ -153,12 +153,14 @@ func (u *usersUsecase) RefreshPassport(req *users.UserRefreshCredential) (*users
 	return passport, nil
 }
 
+
 func (u *usersUsecase) DeleteOauth(oauthId string) error {
 	if err := u.usersRepository.DeleteOauth(oauthId); err != nil {
 		return err
 	}
 	return nil
 }
+
 
 func (u *usersUsecase) GetUserProfile(userId string) (*users.User, error) {
 	profile, err := u.usersRepository.GetProfile(userId)
