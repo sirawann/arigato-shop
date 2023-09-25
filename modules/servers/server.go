@@ -14,6 +14,7 @@ import (
 
 type IServer interface {
 	Start()
+	GetServer() *server
 }
 
 type server struct {
@@ -37,6 +38,10 @@ func NewSever(cfg config.IConfig, db *sqlx.DB) IServer {
 	}
 }
 
+func (s *server)  GetServer() *server {
+	return s
+}
+
 func (s *server) Start() {
 	//Mddlewares
 	middlewares := InitMiddlewares(s)
@@ -52,6 +57,10 @@ func (s *server) Start() {
 
 	modules.MonitorModule()
 	modules.UsersModules()
+	modules.AppinfoModule()
+	modules.FilesModule().Init()
+	modules.ProductsModule().Init()
+	modules.OrdersModule()
 	
 
 	s.app.Use(middlewares.RouterCheck())

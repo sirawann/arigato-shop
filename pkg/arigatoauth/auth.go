@@ -29,6 +29,10 @@ type arigatoAdmin struct {
 	*arigatoAuth
 }
 
+type arigatoApiKey struct {
+	*arigatoAuth
+}
+
 type arigatoMapClaims struct {
 	Claims *users.UserClaims `json:"claims"`
 	jwt.RegisteredClaims
@@ -42,6 +46,9 @@ type IArigatoAdmin interface {
 	SignToken() string
 }
 
+type IArigatoApiKey interface {
+	SignToken() string
+}
 
 func jwtTimeDurationCal(t int) *jwt.NumericDate {
 	return jwt.NewNumericDate(time.Now().Add(time.Duration(int64(t) * int64(math.Pow10(9)))))
@@ -63,6 +70,11 @@ func (a *arigatoAdmin) SignToken() string {
 	return ss
 }
 
+func (a *arigatoApiKey) SignToken() string {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, a.mapClaims)
+	ss, _ := token.SignedString(a.cfg.ApiKey())
+	return ss
+}
 
 func ParseToken(cfg config.IJwtConfig, tokenString string) (*arigatoMapClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &arigatoMapClaims{}, func(t *jwt.Token) (interface{}, error) {
@@ -162,6 +174,8 @@ func NewArigatoAuth(tokenType TokenType, cfg config.IJwtConfig, claims *users.Us
 		return newRefreshToken(cfg, claims), nil
 	case Admin:
 		return newAdminToken(cfg), nil
+	case ApiKey:
+		return newApiKey(cfg), nil
 	default:
 		return nil, fmt.Errorf("unknown token type")
 	}
@@ -212,6 +226,25 @@ func newAdminToken(cfg config.IJwtConfig) IArigatoAuth {
 					Subject:   "admin-token",
 					Audience:  []string{"admin"},
 					ExpiresAt: jwtTimeDurationCal(300),
+					NotBefore: jwt.NewNumericDate(time.Now()),
+					IssuedAt:  jwt.NewNumericDate(time.Now()),
+				},
+			},
+		},
+	}
+}
+
+func newApiKey(cfg config.IJwtConfig) IArigatoAuth {
+	return &arigatoApiKey{
+		arigatoAuth: &arigatoAuth{
+			cfg: cfg,
+			mapClaims: &arigatoMapClaims{
+				Claims: nil,
+				RegisteredClaims: jwt.RegisteredClaims{
+					Issuer:    "arigatoshop-api",
+					Subject:   "api-key",
+					Audience:  []string{"admin", "customer"},
+					ExpiresAt: jwt.NewNumericDate(time.Now().AddDate(2, 0, 0)),
 					NotBefore: jwt.NewNumericDate(time.Now()),
 					IssuedAt:  jwt.NewNumericDate(time.Now()),
 				},
